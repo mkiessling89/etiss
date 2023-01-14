@@ -33,6 +33,7 @@
 class RV32IMACFDGDBCore : public etiss::plugin::gdb::GDBCore {
 public:
 	std::string mapRegister(unsigned index){
+    std::cout << "mapRegister1" << std::endl;
 		if (index < 32){
 			std::stringstream ss;
 			ss << "X" << index;
@@ -49,19 +50,23 @@ public:
 	}
 
 	unsigned mapRegister(std::string name){
+    std::cout << "mapRegister2" << std::endl;
 		return INVALIDMAPPING;
 	}
 
 	unsigned mappedRegisterCount(){
+    std::cout << "mappedRegisterCount" << std::endl;
 		// Modify according to sent register number
 		return 33;
 	}
 
 	etiss::uint64 getInstructionPointer(ETISS_CPU * cpu){
+    std::cout << "getInstructionPointer" << std::endl;
 		return cpu->instructionPointer;
 	}
 
 	bool isLittleEndian(){
+    std::cout << "isLittleEndian" << std::endl;
 		// Modify according to RV32IMACFD manual
 		return true;
 	}
