@@ -145,7 +145,7 @@ SECTIONS
     } > dataram
 
     /* no data in the elf file the stack ram is included */
-    .stab  0 (NOLOAD) :
+    /*.stab  0 (NOLOAD) :
     {
         [ .stab ]
     }
@@ -153,7 +153,7 @@ SECTIONS
     .stabstr  0 (NOLOAD) :
     {
         [ .stabstr ]
-    }
+    }*/
 
     .bss :
     {
