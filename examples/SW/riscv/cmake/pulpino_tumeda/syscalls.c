@@ -244,29 +244,29 @@ void *__dso_handle = (void *)&__dso_handle;
 // Add as required.
 #include <string.h>
 // https://gcc.gnu.org/wiki/Atomic/GCCMM?action=AttachFile&do=view&target=libatomic.c
-typedef uint8_t ATOMICINT1;
-typedef uint16_t ATOMICINT2;
-typedef uint32_t ATOMICINT4;
-typedef uint64_t ATOMICINT8;
-int __atomic_compare_exchange(size_t size, void *mem, void *expect, void *desired, int success, int failure)
-{
-    if (memcmp(mem, expect, size) == 0)
-    {
-        memcpy(mem, desired, size);
-        return 1;
-    }
-    memcpy(expect, mem, size);
-    return 0;
-}
-#define ATOMIC_COMPARE_EXCHANGE(sz)                                                                              \
-    int __atomic_compare_exchange_##sz(void *mem, void *expect, ATOMICINT##sz desired, int success, int failure) \
-    {                                                                                                            \
-        return __atomic_compare_exchange(sz, mem, expect, &desired, success, failure);                           \
-    }
-ATOMIC_COMPARE_EXCHANGE(1);
-ATOMIC_COMPARE_EXCHANGE(2);
-ATOMIC_COMPARE_EXCHANGE(4);
-ATOMIC_COMPARE_EXCHANGE(8);
+// typedef uint8_t ATOMICINT1;
+// typedef uint16_t ATOMICINT2;
+// typedef uint32_t ATOMICINT4;
+// typedef uint64_t ATOMICINT8;
+// int __atomic_compare_exchange(size_t size, void *mem, void *expect, void *desired, int success, int failure)
+// {
+//     if (memcmp(mem, expect, size) == 0)
+//     {
+//         memcpy(mem, desired, size);
+//         return 1;
+//     }
+//     memcpy(expect, mem, size);
+//     return 0;
+// }
+// #define ATOMIC_COMPARE_EXCHANGE(sz)                                                                              \
+//     int __atomic_compare_exchange_##sz(void *mem, void *expect, ATOMICINT##sz desired, int success, int failure) \
+//     {                                                                                                            \
+//         return __atomic_compare_exchange(sz, mem, expect, &desired, success, failure);                           \
+//     }
+// ATOMIC_COMPARE_EXCHANGE(1);
+// ATOMIC_COMPARE_EXCHANGE(2);
+// ATOMIC_COMPARE_EXCHANGE(4);
+// ATOMIC_COMPARE_EXCHANGE(8);
 #endif
 
 #ifndef fp_barrierf
