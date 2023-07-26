@@ -14,7 +14,7 @@ class VanillaAccelerator: public etiss::plugin::MemMappedPeriph
 {
     public:
 
-        VanillaAccelerator(uint64_t addr=0x70000000) : regIf{}, base_addr{addr} {}
+        VanillaAccelerator(uint64_t addr=0x70000000, uint32_t irq_line=20) : regIf{}, base_addr{addr}, irq_line{irq_line} {}
 
         void write32(uint64_t addr, uint32_t val);
 
@@ -52,7 +52,10 @@ class VanillaAccelerator: public etiss::plugin::MemMappedPeriph
         
     protected:
         uint64_t base_addr;
+        uint32_t irq_line;
         std::string _getPluginName() const;
+        void addedToCPUCore(etiss::CPUCore *core); 
+        etiss::CPUCore *cpu_core__;
 
 };
 

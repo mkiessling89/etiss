@@ -104,7 +104,11 @@ ARGS="-i${ETISS_DIR}/examples/base.ini -i${DYN_INI} ${CMD_OPTIONS}"
 
 if [ "${USE_TGDB}" -eq 1 ]; then
     if [ "${DO_NOT_ATTACH}" -eq 0 ]; then
-        konsole --workdir $(pwd) -e "bash -c '/usr/local/research/projects/SystemDesign/tools/riscv/current/bin/riscv64-unknown-elf-gdb -ex \"tar rem :2222\" $TARGETSW_PATH_ELF'" &
+        # konsole --workdir $(pwd) -e "bash -c '/usr/local/research/projects/SystemDesign/tools/riscv/current/bin/riscv64-unknown-elf-gdb -ex \"tar rem :2222\" $TARGETSW_PATH_ELF'" &
+        my_pwd=$(pwd)
+        SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+        # echo $SCRIPTPATH
+        cmd.exe /c start bash -c "bash -c '$SCRIPTPATH/target_gdb.sh $my_pwd $TARGETSW_PATH_ELF; echo "quiting..."; sleep 5'" &
     fi
 fi
 if [ "${USE_GDB}" -eq 1 ]; then

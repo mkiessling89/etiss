@@ -38,6 +38,7 @@ class MemMappedPeriph : public etiss::plugin::SelectiveSysWrapper
         MemMappedPeriph *mmp = nullptr;
         etiss_uint64 base = 0;
         etiss_uint64 end = 0;
+        uint32_t raised_irq = 0;
     };
 
   public:

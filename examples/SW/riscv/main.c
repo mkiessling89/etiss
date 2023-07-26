@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifndef __riscv__
+#define __riscv__
+#endif
+#include "int.h"
+#include "utils.h"
+
 #include "./test_accelerators/qvanilla_acc.h"
 #include "./test_accelerators/vanilla_acc.h"
 
@@ -48,10 +54,30 @@ void test_vanilla_acc(void)
 
 int main()
 {
-    printf("hello world!\n");
+	
+
+	printf("hello world!\n");
 
 	test_qvanilla_acc();
 
+	printf("enable irqs!\n");
+	int_enable();
+	
 	test_vanilla_acc();
 
+}
+
+extern void printf_fromisr(const char *format, ...);
+
+void ISR_ACC(void)
+{
+	unsigned int mie = 0x0;
+    csrr(mie, mie);
+
+	unsigned int mip = 0x0;
+    csrr(mip, mip);
+	printf("inside isr: mie: 0x%08x, mip: 0x%08x\n", mie, mip);
+	
+	printf_fromisr("BAEMMMM!!!\n");
+	
 }

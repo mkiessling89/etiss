@@ -98,6 +98,14 @@ main_entry:
   /* if program exits call exit routine from library */
   jal  x1, exit
 
+/* ========================================== [ ACCELERATOR handler ] === */
+ISR_ACC_ASM:
+  addi x2, x2, -EXCEPTION_STACK_SIZE
+  sw x1, 0x5C(x2)
+  jal x1, store_regs
+  la x1, end_except
+  jal x0, ISR_ACC
+
 
 /* ========================================== [ I2C handler ] === */
 ISR_I2C_ASM:
@@ -280,10 +288,12 @@ _fini:
   // until compiler supports IRQ routines
   .org 0x00
   jal x0, exception_handler // 0: exception handler
-  .rept 22
+  .rept 19
   nop                       // unused
   .endr
-
+  jal x0, ISR_ACC_ASM 	    // 20: Accelerator IRQ
+  nop						// 21: unused
+  nop						// 22: unsued
   jal x0, ISR_I2C_ASM 	    // 23: i2c
   jal x0, ISR_UART_ASM 	    // 24: uart
   jal x0, ISR_GPIO_ASM 	    // 25: gpio

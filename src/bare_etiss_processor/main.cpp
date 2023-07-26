@@ -129,6 +129,16 @@ int main(int argc, const char *argv[])
       cpu->addPlugin(std::shared_ptr<etiss::Plugin>(new TracePrinter(0x88888)));
     }
 
+    {  
+        // add an InterruptHandler Plugin, to raise Interrupts from Peripherals towards the CPU
+        std::shared_ptr<etiss::Plugin> irq_handler = std::make_shared<etiss::InterruptHandler>(cpu->getInterruptVector(),
+                            cpu->getArch(),
+                            etiss::EDGE_TRIGGERED,  // MK: We use EDGE_TRIGGERED here, since LEVEL_TRIGGERED cause too many call-into target code, once the plugin in added. 
+                            false);
+        cpu->addPlugin(irq_handler);                            
+        
+    }
+
     std::cout << "=== Setting up plug-ins ===" << std::endl << std::endl;
 
     // Simulation start

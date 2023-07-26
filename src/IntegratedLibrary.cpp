@@ -158,7 +158,10 @@ extern "C"
             {
                 etiss::Configuration cfg;
                 cfg.config() = options;
-                return new etiss::plugin::VanillaAccelerator(cfg.get<uint64_t>("plugin.VanillaAccelerator.baseaddr", 0x70001000));
+                return new etiss::plugin::VanillaAccelerator(
+                                cfg.get<uint64_t>("plugin.VanillaAccelerator.baseaddr", 0x70001000),
+                                cfg.get<uint32_t>("plugin.VanillaAccelerator.irqline", 0x14)
+                            );
             }
 
         } 

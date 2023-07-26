@@ -1,5 +1,6 @@
 #include <cstddef>
 #include "etiss/IntegratedLibrary/VanillaAccelerator.h"
+#include "etiss/CPUCore.h"
 
 namespace etiss
 {
@@ -48,10 +49,22 @@ void VanillaAccelerator::write32(uint64_t addr, uint32_t val)
         free(input_buffer);
         free(filter_buffer);
         free(result_buffer);
-        
+
+        // raise interrupt after completion
+        auto irq_handler_plugin = cpu_core__->getPlugin("InterruptHandler");
+        if (irq_handler_plugin && irq_handler_plugin.get() )
+        {
+            etiss::InterruptHandler *irq_handler = (etiss::InterruptHandler *)(irq_handler_plugin.get()->getCoroutinePlugin());
+            irq_handler->setLine(irq_line,true,0); 
+        }
     }
 }
 
+void VanillaAccelerator::addedToCPUCore(etiss::CPUCore *core) 
+{
+  cpu_core__ = core;
+  // std::cout << "Vanilla Accelerator 'addedtoCPUCore' function called!! " << std::endl;
+}
 
 uint32_t VanillaAccelerator::read32(uint64_t addr)
 {

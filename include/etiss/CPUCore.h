@@ -339,7 +339,7 @@ class CPUCore : public VirtualStructSupport, public etiss::ToString
     {
         for (auto iter : plugins)
         {
-            // std::cout << "found plugin: " << iter->_getPluginName();
+            // std::cout << "found plugin: " << iter->_getPluginName() << std::endl;
             if (iter->_getPluginName() == name)
                 return iter;
         }
