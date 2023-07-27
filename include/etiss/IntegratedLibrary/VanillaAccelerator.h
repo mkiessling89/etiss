@@ -40,7 +40,9 @@ class VanillaAccelerator: public etiss::plugin::MemMappedPeriph
             uint32_t ic;      
             uint32_t kh;      
             uint32_t kw;  
-            uint32_t control;
+            uint32_t control;    // writing 1 starts the execution, writing 0 clears the internal status, but keeps rest of the registers unchanged. 
+            uint32_t status;     // read-only! status of 0 indicates 'idle', 1 indicates complition, >2 indicated error, status needs to be cleared, by writing 0 to control register, before it can be newly started, rest of the registers remain unchanged
+            
         } regs_t;
 
         union RegIF

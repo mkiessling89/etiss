@@ -1,12 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifndef __riscv__
-#define __riscv__
-#endif
 #include "int.h"
-#include "utils.h"
-
 #include "./test_accelerators/qvanilla_acc.h"
 #include "./test_accelerators/vanilla_acc.h"
 
@@ -41,20 +36,26 @@ void test_vanilla_acc(void)
 	float  i1[9] = { 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	float  result[9];
 	
-	vanilla_accelerator_conv2dnchw(i0, i1, result, 1, 3, 3, 1, 3, 3);
-			
-	printf("result: float:");
-	for( int i = 0; i < sizeof(result)/sizeof(int32_t); ++i)
+	uint32_t status = vanilla_accelerator_conv2dnchw(i0, i1, result, 1, 3, 3, 1, 3, 3);
+
+	if(status == 1)
 	{
-		printf("%f ", result[i]);
+		printf("HW completed with result: float:");
+		for( int i = 0; i < sizeof(result)/sizeof(int32_t); ++i)
+		{
+			printf("%f ", result[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
+	else 
+	{
+		printf("Ohhh, HW reported incomplete status of 0x%08x\n", status);
+	}
 }
 
 
 int main()
 {
-	
 
 	printf("hello world!\n");
 
@@ -65,19 +66,4 @@ int main()
 	
 	test_vanilla_acc();
 
-}
-
-extern void printf_fromisr(const char *format, ...);
-
-void ISR_ACC(void)
-{
-	unsigned int mie = 0x0;
-    csrr(mie, mie);
-
-	unsigned int mip = 0x0;
-    csrr(mip, mip);
-	printf("inside isr: mie: 0x%08x, mip: 0x%08x\n", mie, mip);
-	
-	printf_fromisr("BAEMMMM!!!\n");
-	
 }

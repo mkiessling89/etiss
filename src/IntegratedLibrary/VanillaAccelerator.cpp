@@ -21,43 +21,70 @@ void VanillaAccelerator::write32(uint64_t addr, uint32_t val)
     // std::cout << "adr = " << addr << std::endl;
     // std::cout << "val = " << val << std::endl;
 
+    if( offset == offsetof(regs_t, control) && p_regs->control == 0UL  )
+    {   
+        // clear the status register.
+        p_regs->status = 0; 
+    }
+
     // call the "run" function if the control register is written, with a value none zero!
     if( offset == offsetof(regs_t, control) && p_regs->control != 0UL ) 
     {
-        // copy memory from etiss buffer to own buffer
        
-        size_t inputSize = p_regs->iw * p_regs->ih * p_regs->ic * sizeof(float);
-        size_t filterSize = p_regs->kw * p_regs->kh * p_regs->ic * p_regs->oc * sizeof(float);         
-        size_t resultSize = p_regs->iw * p_regs->ih * p_regs->oc * sizeof(float);
+      size_t inputSize = p_regs->iw * p_regs->ih * p_regs->ic * sizeof(float);
+      size_t filterSize = p_regs->kw * p_regs->kh * p_regs->ic * p_regs->oc * sizeof(float);         
+      size_t resultSize = p_regs->iw * p_regs->ih * p_regs->oc * sizeof(float);
+
+      if (inputSize == 0 || filterSize == 0  || resultSize == 0)
+      {
+          // Signal invalid size
+          p_regs->status = 10;  // TODO: MK: build table with stutus codes ;-)
+          return;
+      } 
+      if (p_regs->ifmap == 0 || p_regs->weights == 0  || p_regs->result == 0)
+      {
+          // signal invalid pointer
+          p_regs->status = 5;  // TODO: MK: build table with stutus codes ;-)
+          return;
+      } 
+
+      if(p_regs->status == 0 )
+      {
 
         float* input_buffer = (float*)malloc(inputSize);  
         float* filter_buffer = (float*)malloc(filterSize);
         float* result_buffer = (float*)malloc(resultSize);
         
-        // TODO: MK well, might be best, if we add sanity check for the source address and weights address
-
+        // copy memory from etiss buffer to own buffer
         plugin_system_->dread(plugin_system_->handle, plugin_cpu_, p_regs->ifmap, (etiss_uint8 *)input_buffer, inputSize); //input data  
         plugin_system_->dread(plugin_system_->handle, plugin_cpu_, p_regs->weights, (etiss_uint8 *)filter_buffer, filterSize); //filter data   
         // etiss_int32 (*dread)(void *handle, ETISS_CPU *cpu, etiss_uint64 addr, etiss_uint8 *buffer, etiss_uint32 length);
         (void) conv2dnchw(input_buffer, filter_buffer, result_buffer, p_regs->oc, p_regs->iw, p_regs->ih, 
-                                       p_regs->ic, p_regs->kh, p_regs->kw);
+                                        p_regs->ic, p_regs->kh, p_regs->kw);
 
         plugin_system_->dwrite(plugin_system_->handle, plugin_cpu_, p_regs->result, (etiss_uint8 *)result_buffer, resultSize);
 
-        std::cout << "completed!  " << std::endl;
+        // std::cout << "completed!  " << std::endl;
         //free the allocated space
         free(input_buffer);
         free(filter_buffer);
         free(result_buffer);
+          
+        p_regs->status = 1; // signal completeness
+      }
 
+      if( p_regs->control == 2 )  // if control is 2, raise an IRQ on completness
+      {
         // raise interrupt after completion
         auto irq_handler_plugin = cpu_core__->getPlugin("InterruptHandler");
         if (irq_handler_plugin && irq_handler_plugin.get() )
         {
             etiss::InterruptHandler *irq_handler = (etiss::InterruptHandler *)(irq_handler_plugin.get()->getCoroutinePlugin());
-            irq_handler->setLine(irq_line,true,0); 
+            irq_handler->setLine(irq_line,true, 0); 
         }
-    }
+      }
+    } // end of "run"
+
 }
 
 void VanillaAccelerator::addedToCPUCore(etiss::CPUCore *core) 
